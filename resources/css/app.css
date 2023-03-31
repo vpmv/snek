@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#game {
+
+}
+
+#gameboard {
+    width: 250px;
+}
+.game-controls {
+    width: 250px;
+}
+.tile-row {
+    height: 10px;
+}
+
+.tile {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.tile.wall {
+    background-color: blue;
+}
+
+.tile.snek {
+    background-color: green;
+}
+.tile.snek.dead {
+    background-color: pink;
+}
+
+.tile.food {
+    background-color: darkmagenta;
+}
+
+.gameboard.preview {
+    color: #ccc;
+}
+.gameboard.preview .tile-row {
+    height: 5px;
+}
+.gameboard.preview .tile {
+    width: 5px;
+    height: 5px;
+}
+
+.gameboard.editor .tile {
+    width: 15px;
+    height: 15px;
+    border: 1px solid #333;
+    cursor: crosshair;
+}
+.gameboard.editor .tile-row {
+    height: 15px;
+}
+
+.brush.tile {
+    width: 15px;
+    height: 15px;
+}
