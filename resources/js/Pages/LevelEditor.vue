@@ -1,16 +1,21 @@
 <script>
 
-import {Head, useForm} from "@inertiajs/vue3"
+import {Link, Head, useForm} from "@inertiajs/vue3"
 import {directions, collisions, cellTypesInverse} from "@/Game/enums";
 import {loadLevel} from "@/Game/LevelLoader";
 
 export default {
     components: {
+        Link,
         Head,
     },
     props: {
-        defaultBoard: {
+        boardConfig: {
             type: Object,
+            required: true,
+        },
+        mayDelete: {
+            type: Boolean,
             required: true,
         },
     },
@@ -58,17 +63,18 @@ export default {
             form.post(route('game.editor.save'), {
                 onFinish: () => {
                     this.name = '';
-                    // this.resetLevelEditor()
+                    this.resetLevelEditor()
                 }
             })
         },
         resetLevelEditor() {
-            let gameBoard = loadLevel('', this.defaultBoard.data.matrix, {})
-            this.name = '';
+            let gameBoard = loadLevel('', this.boardConfig.data.matrix, this.boardConfig.data.meta, true)
+            this.name = this.boardConfig.name !== 'default' ? this.boardConfig.name : '';
             this.matrix   = gameBoard.matrix
-            if (this.meta.snekDirection == undefined) {
-                this.meta.snekDirection = directions.LEFT
-            }
+            this.meta = {snekDirection: gameBoard.snek.direction || directions.LEFT}
+            // if (this.meta.snekDirection == undefined) {
+            //     this.meta.snekDirection = directions.LEFT
+            // }
         },
     },
     mounted() {
@@ -109,7 +115,7 @@ export default {
             <div class="game-options">
                 <div class="flex flex-row mb-2">
                     <label for="name" class="grow text-white">Level name</label>
-                    <input type="text" required v-model="name">
+                    <input type="text" v-model="name" required maxlength="20">
                 </div>
 
                 <div class="flex flex-row">
@@ -120,6 +126,10 @@ export default {
                 </div>
 
                 <button class="bg-blue-400 text-white rounded-full p-2 float-right mt-2" @click="saveLevel">Save level</button>
+                <Link v-if="mayDelete"
+                      :href="route('game.editor.delete', {level: name})"
+                      class="bg-red-600 text-white rounded-full p-2 float-right mt-2"
+                >Delete level</Link>
             </div>
         </div>
 

@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [GameController::class, 'index'])->name('game.index');
 Route::get('/play/{level}', [GameController::class, 'playGame'])->name('game.play');
-Route::get('/level-editor', [GameController::class, 'levelEditor'])->name('game.editor');
+Route::get('/level-editor/{level?}', [GameController::class, 'levelEditor'])->name('game.editor');
+Route::get('/level-editor/{level}/delete', [GameController::class, 'deleteLevel'])->name('game.editor.delete');
 Route::post('/level-editor/save', [GameController::class, 'saveLevel'])->name('game.editor.save');
 Route::post('/submit-score', [GameController::class, 'setHiScore'])->name('game.score');

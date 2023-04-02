@@ -2,7 +2,6 @@
 import {Head, Link} from '@inertiajs/vue3';
 import Game from "@/Game/Game.vue";
 import {ArrowLeftIcon} from "@heroicons/vue/20/solid";
-import {onMounted} from "vue";
 
 const props = defineProps({
     gameBoard: {

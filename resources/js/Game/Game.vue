@@ -121,7 +121,18 @@ export default {
         gameBoardCoord(x, y) {
             return this.gameBoard[y][x];
         },
+        outOfBounds(vertex) {
+            return vertex < 0 || vertex >= this.gameBoard.length
+        },
+        mirrorVertex(vertex) {
+            return vertex < 0 ? this.gameBoard.length - 1 : 0
+        },
         toggleGameStop() {
+            if (this.gameOver) {
+                this.gameReset();
+                return
+            }
+
             this.gameStop = !this.gameStop;
             if (this.gameStop) {
                 clearInterval(this.interval)
@@ -135,6 +146,11 @@ export default {
             this.gameStop = true;
             this.showForm = this.level > 1;
             clearInterval(this.interval)
+            nextTick(() => {
+                if (this.showForm) {
+                    this.$refs.inputUsername.focus();
+                }
+            })
         },
         setFood() {
             let col   = 'wall',
@@ -206,6 +222,11 @@ export default {
                     x++
                     break;
             }
+            if (this.outOfBounds(y)) {
+                y = this.mirrorVertex(y)
+            } else if (this.outOfBounds(x)) {
+                x = this.mirrorVertex(x)
+            }
             let cell = this.gameBoardCoord(x, y);
             if (cell === undefined) {
                 return false;
@@ -213,8 +234,15 @@ export default {
             return cell.class.indexOf(collisionType) > -1;
         },
         snekUpdateHead(x, y) {
+            if (this.outOfBounds(y)) {
+                y = this.mirrorVertex(y)
+            } else if (this.outOfBounds(x)) {
+                x = this.mirrorVertex(x)
+            }
+
             this.snek.position.unshift([y, x])
             this.gameBoard[y][x].class = collisions.SNEK;
+
             this.snek.head             = this.snek.position[0];
         },
         snekUpdateTail() {
@@ -275,13 +303,13 @@ export default {
 
         </div>
 
-        <div id="gameboard" @keydown="changeDirection" tabindex="0" class="outline-0 mx-auto" ref="gameBoardDiv">
+        <div id="gameboard" @keydown="changeDirection" tabindex="0" class="outline-0 mx-auto" :class="{'gameover': this.gameOver}" ref="gameBoardDiv">
             <div v-for="boardRow in gameBoard" class="tile-row">
                 <div v-for="boardCell in boardRow" class="tile" :class="boardCell.class"></div>
             </div>
         </div>
 
-        <div v-if="gameStop" class="absolute left-0 bg-blue-800 w-full" :class="{'top-1/2': !showForm, 'top-0 h-full': showForm }">
+        <div v-if="gameStop" class="absolute left-0 bg-blue-800 w-full pt-1 pb-2.5" :class="{'top-1/2': !showForm, 'top-0 h-full': showForm }">
             <div v-if="gameOver" class="text-white p-4">
                 <h3 class="text-center mb-2">Game Over</h3>
 
@@ -297,9 +325,9 @@ export default {
                             <span class="shrink">{{ snek.position.length }}</span>
                         </div>
                         <div class="flex flex-row">
-                            <label for="username" autofocus class="grow">Player name</label>
+                            <label for="username" class="grow">Player name</label>
                             <span class="shrink">
-                                <input class="text-black" name="username" type="text" v-model="form.username">
+                                <input class="text-black" name="username" type="text" v-model="form.username" ref="inputUsername" maxlength="20" required>
                             </span>
                         </div>
                     </div>
@@ -313,9 +341,9 @@ export default {
                     Restart game
                 </button>
             </div>
-            <div v-else>
-                Game Paused
-                <button class="rounded-full block bg-blue-800 text-white px-2 py-0.5" @click="toggleGameStop">
+            <div v-else class="text-white">
+                <h3 class="text-center mb-2">Game Paused</h3>
+                <button class="rounded-full block bg-blue-400 px-2 py-0.5 mx-auto mt-2" @click="toggleGameStop">
                     Continue
                 </button>
             </div>

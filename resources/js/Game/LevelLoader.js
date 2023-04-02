@@ -27,7 +27,7 @@ const setCell   = (matrix, x, y, collision) => {
     }
     matrix[y][x] = {class: collision}
 }
-const loadLevel = (name, grid = [], meta = {}) => {
+const loadLevel = (name, grid = [], meta = {}, setSnake = false) => {
     let matrix  = [];
     let snekPos = [];
     let snekDir = meta.snekDirection || null
@@ -39,7 +39,9 @@ const loadLevel = (name, grid = [], meta = {}) => {
             // snek type
             if (coll === cellTypes.s.collision) {
                 snekPos.push([y, x])
-                coll = collisions.VOID
+                if (!setSnake) {
+                    coll = collisions.VOID
+                }
             }
             setCell(matrix, x, y, coll)
         })

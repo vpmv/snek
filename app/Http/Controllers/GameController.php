@@ -32,24 +32,44 @@ class GameController extends Controller
 
     }
 
-    public function levelEditor(Request $request)
+    public function levelEditor(Request $request, $level = 'default')
     {
+        $config = Gameboard::where(['name' => $level])->firstOrFail();
+        $mayDelete = !in_array($level, ['default', 'face', 'helipad']);
         return Inertia::render('LevelEditor', [
-            'defaultBoard' => Gameboard::where(['name' => 'default'])->firstOrFail()->toArray(),
+            'boardConfig' => $config->toArray(),
+            'mayDelete' => $mayDelete,
         ]);
     }
 
     public function saveLevel(Request $request) {
         $request->validate([
-            'levelname' => ['alpha_num', 'required'],
+            'levelname' => ['regex:/\w+[\w\s]+/', 'required', 'max:20'],
             'matrix' => ['required', 'array'],
             'meta' => ['required', 'array']
         ]);
 
+        $level = $request->request->get('levelname');
+        if (in_array($level, ['default', 'face', 'helipad'])) {
+            throw new \InvalidArgumentException('You may not alter default levels');
+        }
+
         Gameboard::updateOrCreate(
-            ['name' => $request->request->get('levelname')],
+            ['name' => $level],
             ['data->matrix' => $request->request->get('matrix'),'data->meta' => $request->request->get('meta'),'size' => 25]
         );
+
+        return Redirect::to('/');
+    }
+
+    public function deleteLevel(Request $request, $level)
+    {
+        if (in_array($level, ['default', 'face', 'helipad'])) {
+            throw new \InvalidArgumentException('You may not delete default levels');
+        }
+
+        $config = Gameboard::where(['name' => $level])->firstOrFail();
+        $config->delete();
 
         return Redirect::to('/');
     }
@@ -82,8 +102,8 @@ class GameController extends Controller
     public function setHiScore(Request $request)
     {
         $request->validate([
-            'levelname' => ['required', 'alpha', 'max:50'],
-            'username' => ['required', 'alpha_num:ascii', 'max:50'],
+            'levelname' => ['required', 'regex:/\w+[\w\s]+/', 'max:20'],
+            'username' => ['required', 'alpha_num:ascii', 'max:20'],
             'score'    => ['required', 'integer'],
         ]);
 

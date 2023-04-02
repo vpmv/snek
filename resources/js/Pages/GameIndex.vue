@@ -1,12 +1,14 @@
 <script>
 import {Head, Link} from '@inertiajs/vue3';
-import LevelPreview from "@/Pages/LevelPreview.vue";
+import {PencilIcon} from "@heroicons/vue/20/solid";
+import LevelPreview from "@/Game/LevelPreview.vue";
 
 export default {
     components: {
         LevelPreview,
         Head,
         Link,
+        PencilIcon,
     },
     props: {
         // canLogin: {
@@ -58,19 +60,24 @@ export default {
             </Link>
         </div>
 
-        <div class="w-1/2 flex flex-col">
+        <div class="w-auto flex flex-col">
             <h1 class="text-white text-center block">Level selection</h1>
 
-            <div class="w-full mx-auto flex flex-row justify-between mb-4">
+            <div class="w-full mx-auto grid grid-cols-5 gap-4 justify-between mb-4">
                 <button
                     v-for="board,boardName in gameBoards"
                     class="p-2 pb-4" :class="{'border-b-2': selection == board.name}"
                     @click="selectLevel(board.name)"
                 >
                     <level-preview :matrix="board.data.matrix" :meta="board.data.meta" :name="board.name" />
-                    <a :href="route('game.play', {level: boardName})" class="rounded-full bg-blue-400 text-white p-2 mt-2">
-                        Play
-                    </a>
+                    <Link :href="route('game.play', {level: boardName})" class="rounded-full bg-blue-400 text-white p-2 mt-2">Play</Link>
+                    <Link
+                        :href="route('game.editor', {level: boardName})"
+                        class="rounded-full bg-orange-400 text-white py-2 px-2.5 ml-1"
+                        aria-label="Edit"
+                    >
+                        <PencilIcon class="h-3 w-3 text-white inline"/>
+                    </Link>
                 </button>
 
             </div>

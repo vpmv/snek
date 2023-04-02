@@ -28,7 +28,7 @@
 .tile.snek {
     background-color: green;
 }
-.tile.snek.dead {
+.gameover .tile.snek {
     background-color: pink;
 }
 
